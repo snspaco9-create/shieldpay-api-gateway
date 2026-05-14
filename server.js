@@ -8,25 +8,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-const paymentRoutes = require('./routes/paymentRoutes');
-const transferRoutes = require('./routes/transferRoutes');
-
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/transfer', transferRoutes);
-
-app.get('/', (req, res) => {
-    res.json({ msg: 'ShieldPay API is running 🔒' });
+// Simple test route first
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'ShieldPay API is working!' });
 });
 
-// FOR VERCEL: Export app instead of listening
+// Products route (temporary mock)
+app.get('/api/products', (req, res) => {
+    res.json([
+        { id: 1, name: 'Test Product', price: 1000 },
+        { id: 2, name: 'Another Product', price: 2000 }
+    ]);
+});
+
+// Health check
+app.get('/', (req, res) => {
+    res.json({ status: 'ok', message: 'ShieldPay API is running' });
+});
+
+// Export for Vercel
 module.exports = app;
 
-// FOR LOCAL DEVELOPMENT: Only listen if not in Vercel
-if (process.env.NODE_ENV !== 'production') {
+// Local development
+if (require.main === module) {
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
