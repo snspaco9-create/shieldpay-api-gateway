@@ -23,7 +23,7 @@ export default function PaymentForm({ token, onSuccess }) {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/payments/initiate',
+        'https://shieldpay-api-gateway.vercel.app/api/payments/initiate',
         {
           amount: parseFloat(amount),
           customer_name: customerName,
@@ -42,19 +42,16 @@ export default function PaymentForm({ token, onSuccess }) {
         message: `Payment initiated! Reference: ${response.data.reference}`,
       })
 
-      // Reset form
       setAmount('')
       setCustomerName('')
       setCustomerEmail('')
       
-      // Call success callback to refresh history
       if (onSuccess) onSuccess()
       
-      // Auto-confirm payment after 3 seconds (demo)
       setTimeout(async () => {
         try {
           await axios.post(
-            'http://localhost:5000/api/payments/webhook',
+            'https://shieldpay-api-gateway.vercel.app/api/payments/webhook',
             { reference: response.data.reference, status: 'success' },
             { headers: { Authorization: `Bearer ${token}` } }
           )

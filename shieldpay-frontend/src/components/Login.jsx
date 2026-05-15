@@ -16,7 +16,7 @@ export default function Login({ setToken, switchToRegister }) {
     setError('')
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('https://shieldpay-api-gateway.vercel.app/api/auth/login', {
         email,
         password
       })
@@ -34,7 +34,6 @@ export default function Login({ setToken, switchToRegister }) {
     setResetMessage('')
 
     try {
-      // In production, this would send an email
       setResetMessage(`Password reset link sent to ${resetEmail}. (Demo mode - check console)`)
       console.log(`Password reset requested for: ${resetEmail}`)
       setTimeout(() => setShowForgotPassword(false), 3000)

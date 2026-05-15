@@ -13,7 +13,7 @@ export default function TransactionHistory({ token, refreshTrigger }) {
   const fetchTransactions = async () => {
     setLoading(true)
     try {
-      const response = await axios.get('http://localhost:5000/api/payments/history', {
+      const response = await axios.get('https://shieldpay-api-gateway.vercel.app/api/payments/history', {
         headers: { Authorization: `Bearer ${token}` }
       })
       setTransactions(response.data.transactions)
