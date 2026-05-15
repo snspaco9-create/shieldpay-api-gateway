@@ -5,31 +5,38 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+
+app.use(cors({
+    origin: ['https://shieldpay-frontend.vercel.app', 'http://localhost:5173', 'http://localhost:5000'],
+    credentials: true
+}));
 app.use(express.json());
 
-// Simple test route first
+
+const authRoutes = require('./routes/authRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const transferRoutes = require('./routes/transferRoutes');
+
+
+app.use('/api/auth', authRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/transfer', transferRoutes);
+
+
 app.get('/api/test', (req, res) => {
     res.json({ message: 'ShieldPay API is working!' });
 });
 
-// Products route (temporary mock)
-app.get('/api/products', (req, res) => {
-    res.json([
-        { id: 1, name: 'Test Product', price: 1000 },
-        { id: 2, name: 'Another Product', price: 2000 }
-    ]);
-});
 
-// Health check
 app.get('/', (req, res) => {
     res.json({ status: 'ok', message: 'ShieldPay API is running' });
 });
 
-// Export for Vercel
+
 module.exports = app;
 
-// Local development
+
 if (require.main === module) {
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
