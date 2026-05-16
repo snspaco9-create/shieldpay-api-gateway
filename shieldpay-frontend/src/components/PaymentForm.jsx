@@ -1,92 +1,81 @@
-import { useState } from 'react'
-import axios from 'axios'
+import { useState } from 'react';
+import axios from 'axios';
 
 export default function PaymentForm({ token, onSuccess }) {
-  const [amount, setAmount] = useState('')
-  const [customerName, setCustomerName] = useState('')
-  const [customerEmail, setCustomerEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(null)
-
-  const generateIdempotencyKey = () => {
-    return `frontend_${Date.now()}_${Math.random().toString(36).substring(7)}`
-  }
+  const [recipientUid, setRecipientUid] = useState('');
+  const [amount, setAmount] = useState('');
+  const [pin, setPin] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    setSuccess(null)
-
-    const idempotencyKey = generateIdempotencyKey()
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess(null);
 
     try {
       const response = await axios.post(
-        'https://shieldpay-api-gateway.vercel.app/api/payments/initiate',
+        'https://shieldpay-api-gateway.vercel.app/api/transfer/send',
         {
+          recipient_uid: recipientUid,
           amount: parseFloat(amount),
-          customer_name: customerName,
-          customer_email: customerEmail
+          pin: pin
         },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Idempotency-Key': idempotencyKey
-          }
+          headers: { Authorization: `Bearer ${token}` }
         }
-      )
+      );
 
       setSuccess({
-        reference: response.data.reference,
-        message: `Payment initiated! Reference: ${response.data.reference}`,
-      })
+        message: response.data.msg,
+        newBalance: response.data.new_balance,
+        recipient: response.data.recipient
+      });
 
-      setAmount('')
-      setCustomerName('')
-      setCustomerEmail('')
-      
-      if (onSuccess) onSuccess()
-      
-      setTimeout(async () => {
-        try {
-          await axios.post(
-            'https://shieldpay-api-gateway.vercel.app/api/payments/webhook',
-            { reference: response.data.reference, status: 'success' },
-            { headers: { Authorization: `Bearer ${token}` } }
-          )
-          setSuccess(prev => ({ ...prev, message: '✅ Payment completed successfully!' }))
-          if (onSuccess) onSuccess()
-        } catch (err) {
-          console.error('Webhook failed', err)
-        }
-      }, 3000)
-      
+      setRecipientUid('');
+      setAmount('');
+      setPin('');
+      if (onSuccess) onSuccess();
     } catch (err) {
-      setError(err.response?.data?.msg || 'Payment initiation failed')
+      setError(err.response?.data?.msg || 'Transfer failed');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-xl font-bold mb-4">Make Payment</h2>
-      
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
       )}
-      
+
       {success && (
         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          <p>{success.message}</p>
-          <p className="text-sm mt-1">Reference: {success.reference}</p>
+          <p>✅ {success.message}</p>
+          <p className="text-sm mt-1">New balance: ₦{success.newBalance?.toLocaleString()}</p>
+          <p className="text-sm">Sent to: {success.recipient}</p>
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit}>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">Recipient UID</label>
+          <input
+            type="text"
+            value={recipientUid}
+            onChange={(e) => setRecipientUid(e.target.value.toUpperCase())}
+            placeholder="e.g., SP123456"
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
         <div className="mb-4">
           <label className="block text-gray-700 mb-2">Amount (₦)</label>
           <input
@@ -98,45 +87,28 @@ export default function PaymentForm({ token, onSuccess }) {
             min="1"
           />
         </div>
-        
-        <div className="mb-4">
-          <label className="block text-gray-700 mb-2">Customer Name</label>
-          <input
-            type="text"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
-        
+
         <div className="mb-6">
-          <label className="block text-gray-700 mb-2">Customer Email</label>
+          <label className="block text-gray-700 mb-2">Transaction PIN</label>
           <input
-            type="email"
-            value={customerEmail}
-            onChange={(e) => setCustomerEmail(e.target.value)}
+            type="password"
+            value={pin}
+            onChange={(e) => setPin(e.target.value)}
+            placeholder="Your 4‑6 digit transaction PIN"
+            maxLength="6"
             className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
-        
+
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
         >
-          {loading ? 'Processing...' : 'Pay Now'}
+          {loading ? 'Processing...' : 'Send Money'}
         </button>
       </form>
-      
-      <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-        <p className="font-semibold">🛡️ Security Features:</p>
-        <p>✓ Idempotency keys prevent double charges</p>
-        <p>✓ JWT authentication required</p>
-        <p>✓ Rate limiting protects against abuse</p>
-        <p>✓ All transactions are logged</p>
-      </div>
     </div>
-  )
+  );
 }
