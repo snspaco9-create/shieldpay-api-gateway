@@ -1,61 +1,49 @@
-{
-  "msg": "Login successful",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjlkODcyN2Q1LWVmZDUtNGRhNS04OTk3LTFjN2FmZmRjYTZiYiIsImVtYWlsIjoidGVzdEBzaGllbGRwYXkuY29tIiwiaWF0IjoxNzc2OTg3NTg1LCJleHAiOjE3NzY5OTExODV9.bvniVoqkn6cUy5JdcYf3M86MwzTSJAHfBtP0lSmYfyY"
-}
- made use of the token here to confirm if the protected routes works using GET in thunder client and this covers 
- JWT authentication (register/login)
- Protected routes (API gateway security layer)
- User identification via token
+ShieldPay – Secure API Gateway for Digital Wallets
 
-This is exactly how real fintech APIs (Stripe, Paystack, banks) protect their endpoints.
+ShieldPay is a full-stack digital wallet application built to demonstrate how modern payment systems can be secured using industry-standard API security practices. The project serves as both a learning resource and a working prototype, showcasing the implementation of authentication, transaction security, and payment processing in a realistic environment.
 
-database password SnDarki&Sparkle$$
+Overview
 
+This project was developed as my final-year Software Engineering project at Wellspring University. Its primary goal is to provide a secure API gateway for digital wallet transactions while addressing common security challenges faced by modern payment systems, including unauthorized access, duplicate transactions, API abuse, and insufficient audit logging.
 
-project structure with clearer expanations
+Rather than focusing solely on payment functionality, ShieldPay emphasizes security by design, ensuring that every transaction passes through multiple layers of validation before being processed.
 
-shieldpay-api/
-├── config/
-│   └── supabase.js          ← Database connection
-├── controllers/
-│   └── authController.js    ← Register/login logic
-├── middleware/
-│   ├── authMiddleware.js    ← JWT verification
-│   ├── rateLimiter.js       ← Anti-abuse (100/5 req limit)
-│   └── logger.js            ← Request logging
-├── routes/
-│   └── authRoutes.js        ← API endpoints
-├── .env                     ← Your secrets
-├── server.js                ← Main app
-└── package.json
+Key Features
 
-User → Initiates payment → 
-API Gateway creates transaction → 
-Returns "payment link" (mock) → 
-User "completes" payment (simulated) → 
-Webhook confirms → 
-Transaction marked "successful"
+1 JWT-based user authentication and authorization
+2 Secure digital wallet with balance management
+3 Peer-to-peer (P2P) money transfers with transaction PIN verification
+4 API rate limiting to prevent brute-force attacks and abuse
+6 Idempotency protection to prevent duplicate transactions
+7 Complete transaction history and audit logging
+8 Password and transaction PIN hashing using bcrypt
+9 RESTful API built with Node.js and Express
+10 React dashboard for user interaction
+11 PostgreSQL database powered by Supabase
 
+Tech Stack
 
-Frontend (React)                    Backend (Your API)
-     │                                      │
-     ├─ POST /api/auth/register ──────────►│
-     │◄─────────── { token } ──────────────┤
-     │                                      │
-     ├─ POST /api/auth/login ─────────────►│
-     │◄─────────── { token } ──────────────┤
-     │                                      │
-     ├─ POST /api/payments/initiate ──────►│ (with token in header)
-     │◄──────── { reference } ─────────────┤
-     │                                      │
-     ├─ GET /api/payments/history ─────────►│
-     │◄─────── [transactions] ─────────────┤
+Frontend
 
-     
+- React.js
+- Tailwind CSS
 
-    
-     referencces SP_1777049825661_0HWIMN9V
+Backend
 
-    
+- Node.js
+- Express.js
+- JWT Authentication
+- bcrypt
+- Express Rate Limit
 
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmYjc4MGI0LTBiOTEtNDdlNC05MDAzLTg4NWQ4YzJhZmJhYyIsImVtYWlsIjoiam9obkBzaGllbGRwYXkuY29tIiwidWlkIjoiU1A5ODU1ODYiLCJpYXQiOjE3NzcyMzQ2MjcsImV4cCI6MTc3NzIzODIyN30.gbDOeyzW_zhKod2bZFNb1apdBJ4YfKWGTYTrB-UY9cg
+Database
+
+- Supabase (PostgreSQL)
+
+Project Goal
+
+ShieldPay was built as an educational and practical implementation of a secure payment gateway. While it uses simulated payments and is not intended for production use, it demonstrates how secure authentication, rate limiting, idempotency, transaction logging, and wallet management can be integrated into a modern fintech application.
+
+This project is intended to help students, developers, and researchers understand the core security concepts behind digital payment systems and API gateway design.
+
+Contributions, suggestions, and feedback are always welcome.
